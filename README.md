@@ -41,3 +41,25 @@ The APIs aren't intended to determine whether the audio is from a live person, o
 ```
     docker run --env-file .env -p 80:80 -t YOUR_DOCKER_IMAGE_NAME
 ```
+
+## Enroll voice
+To enroll a [Neural Voice](https://learn.microsoft.com/en-us/azure/cognitive-services/speech-service/text-to-speech):
+![image](./media/enroll_voice.PNG)
+1. Select a voice in the Neural Voice dropdown
+2. Click on "Generate voice sample" to generate the audio sample for "Activation phrase" and the "Custom audio"
+3. Click on "Enroll voice" to end the enrollment process
+
+## Record voice
+To enroll a new voice, recording the audio sample with your microphone:
+![image](./media/record_voice.png)
+1. Enter a voice name in the interface
+2. Record the "Activation phrase"
+3. Record the "Custom Audio"
+4. Click on "Enroll" to end the enrollment process
+
+## Verify voice
+To verify a voice sample:
+![image](./media/verify_voice.png)
+1. Select the voice to verify in the "Voice sample" dropdown
+2. Record the "Verification Audio"
+3. Select the "Enrolled voice" to compare the recorded sample
