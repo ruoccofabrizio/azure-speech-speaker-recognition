@@ -1,0 +1,7 @@
+streamlit==1.10.0
+urllib3==1.26.5
+requests==2.26.0
+azure-cognitiveservices-speech==1.23.0
+numpy==1.21.4
+pydub==0.25.1
+streamlit-audiorecorder==0.0.2
