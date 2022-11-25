@@ -34,8 +34,8 @@ The APIs aren't intended to determine whether the audio is from a live person, o
 ```
 2. Modify the .env file with your application settings
 ```
-    speech_key=Azure_Speech_Key
-    service_region=Azure_Speech_Region
+    Azure_Speech_Key=Your_Azure_Speech_Key
+    Azure_Speech_Region=Your_Azure_Speech_Region
 ```
 3. Run the image
 ```

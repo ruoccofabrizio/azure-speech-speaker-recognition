@@ -2,6 +2,7 @@ from ntpath import join
 import azure.cognitiveservices.speech as speechsdk
 from random import randint
 from os import path
+import os
 
 def synt_text (text, scope, voice_name): 
     # Creates an instance of a speech config with specified subscription key and service region.
