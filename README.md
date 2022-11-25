@@ -36,6 +36,8 @@ The APIs aren't intended to determine whether the audio is from a live person, o
 ```
     Azure_Speech_Key=Your_Azure_Speech_Key
     Azure_Speech_Region=Your_Azure_Speech_Region
+    language=en-us
+    custom_phrase=Write your own custom message to be read. Please keep in mind that you need to record at least 20s of audio for a successful enrollment.
 ```
 3. Run the image
 ```

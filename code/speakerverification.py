@@ -45,7 +45,7 @@ def enroll_profile(**kwargs):
         "Content-Type" : "audio/wav"
     }
 
-    with open(os.path.join("data",f"it-IT-{profile_name}Neural_first.wav"), 'rb') as f:
+    with open(os.path.join("data",f"{os.environ['language']}-{profile_name}Neural_first.wav"), 'rb') as f:
         data = f.read()
 
     r = requests.post(url=url, headers=headers, data=data)
@@ -59,7 +59,7 @@ def enroll_profile(**kwargs):
             "Content-Type" : "audio/wav"
         }
 
-        with open(os.path.join('data',f'it-IT-{profile_name}Neural.wav'), 'rb') as f:
+        with open(os.path.join('data',f"{os.environ['language']}-{profile_name}Neural.wav"), 'rb') as f:
             data = f.read()
 
         r = requests.post(url=url, headers=headers, data=data)
@@ -82,7 +82,7 @@ def verify_profile(**kwargs):
         "Content-Type" : "audio/wav"
     }
    
-    with open(os.path.join('.','data',f'it-IT-{file_name}Neural_verify{auth_code}.wav'), 'rb') as f:
+    with open(os.path.join('.','data',f"{os.environ['language']}-{file_name}Neural_verify{auth_code}.wav"), 'rb') as f:
         data = f.read()
 
     r = requests.post(url=url, headers=headers, data=data)

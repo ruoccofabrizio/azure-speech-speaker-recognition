@@ -32,10 +32,10 @@ def generate_audio_files(**kwargs):
     generate_audio= kwargs.get('generate_audio', ["Enroll","Verify"])
     auth_code= kwargs.get('auth_code', randint(0,99999))
     print(auth_code)
-    voice_name = f"it-IT-{name}Neural"
+    voice_name = f"{os.environ['language']}-{name}Neural"
 
-    text_first = "Parlo qualche secondo per farti sentire la mia voce, così in futuro mi riconoscerai."
-    text = f"Ciao, mi chiamo {person_name} e voglio attivare il servizio di conferma vocale per le mie operazioni Sono nata il 1 Gennaio 1990 a Roma e sono attualmente residente a Milano, in via Genova 123. Ho scelto di facilitare il mio accesso, utilizzando semplicemente solo la mia voce! Continuo a parlare per raggiungere almeno 20 secondi di registrazione per creare il mio profilo vocale!"
+    text_first = os.environ['activation_phrase']
+    text = os.environ['custom_phrase']
     text_verify = f"Sono {person_name} ed il mio codice di conferma per l'operazione è {auth_code:05}"
 
     if "Enroll" in generate_audio:

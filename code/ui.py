@@ -4,6 +4,7 @@ from urllib.error import URLError
 from random import randint
 from pydub import AudioSegment
 from audiorecorder import audiorecorder
+import requests
 
 from generateaudio import generate_audio_files
 from speakerverification import enroll_profile, verify_profile
@@ -17,13 +18,27 @@ def generate_audio_file_with_auth_code(**kwargs):
 
 def save_audio_wav(val, prefix, suffix):
     # AudioSegment.converter = r"ffmpeg.exe"
-    with open(os.path.join('data',f"it-IT-{prefix}Neural{suffix}.mp3"), "wb") as wav_file:
+    with open(os.path.join('data',f"{os.environ['language']}-{prefix}Neural{suffix}.mp3"), "wb") as wav_file:
         wav_file.write(val.tobytes())
-    sound = AudioSegment.from_file(os.path.join('data',f"it-IT-{prefix}Neural{suffix}.mp3"))
+    sound = AudioSegment.from_file(os.path.join('data',f"{os.environ['language']}-{prefix}Neural{suffix}.mp3"))
     sound = sound.set_channels(1)
     sound = sound.set_frame_rate(16000)
-    sound.export(os.path.join('data',f"it-IT-{prefix}Neural{suffix}.wav"), format="wav")
-    st.audio(os.path.join('data',f"it-IT-{prefix}Neural{suffix}.wav"))
+    sound.export(os.path.join('data',f"{os.environ['language']}-{prefix}Neural{suffix}.wav"), format="wav")
+    st.audio(os.path.join('data',f"{os.environ['language']}-{prefix}Neural{suffix}.wav"))
+
+def set_activation_phrase_and_voices():
+    speech_key = os.environ['Azure_Speech_Key']
+    service_region = os.environ['Azure_Speech_Region']
+    # Get ActivationPhrase for selected locale
+    url = f"https://{service_region}.api.cognitive.microsoft.com/speaker-recognition/verification/text-independent/phrases/{os.environ['language']}?api-version=2021-09-05"
+    headers = {"Ocp-Apim-Subscription-Key": speech_key}
+    r = requests.get(url, headers=headers)
+    os.environ['activation_phrase'] = r.json()['value'][0].get('activationPhrase', "I'll talk for a few seconds so you can recognize my voice in the future.")
+    # Get available voices for selected locale
+    url = f"https://{service_region}.tts.speech.microsoft.com/cognitiveservices/voices/list"
+    r = requests.get(url, headers=headers)
+    return sorted(list(filter(None,map(lambda x: x['DisplayName'] if x['Locale'].lower() == os.environ['language'] and x['VoiceType'] == 'Neural' else None, r.json()))))
+
 
 ########## START - MAIN ##########
 try:
@@ -56,6 +71,9 @@ try:
     if 'used_auth_code' not in st.session_state:
         st.session_state['used_auth_code'] = None
 
+    # Set activation phrase and available voices for specified language
+    available_voices = set_activation_phrase_and_voices()
+
     profile_db = "profiles_db.json"
     with open(profile_db,'r') as f:
         data = json.load(f)   
@@ -66,11 +84,10 @@ try:
     col1, col2, col3 = st.columns([1,1,2])
 
     with col1:
-        available_voices = [None, 'Cataldo', 'Elsa', 'Fabiola', 'Fiamma', 'Gianni', 'Imelda', 'Irma', 'Pierina']
         st.session_state['voice_name'] = st.selectbox("Custom Neural Voice", available_voices)
     
     audio_generated = False
-    if os.path.exists(os.path.join('data',f"it-IT-{st.session_state['voice_name']}Neural_first.wav")):
+    if os.path.exists(os.path.join('data',f"{os.environ['language']}-{st.session_state['voice_name']}Neural_first.wav")):
         audio_generated = True
 
     if st.session_state['voice_name']:
@@ -86,18 +103,18 @@ try:
         col1, col2, col3, col4 = st.columns([1,1,1,1])
         with col1:
             st.write("Activation phrase")
-            st.write("Parlo qualche secondo per farti sentire la mia voce, così in futuro mi riconoscerai.")
+            st.write(os.environ['activation_phrase'])
         with col2:
             st.write("-")
-            if os.path.exists(os.path.join('data',f"it-IT-{st.session_state['voice_name']}Neural_first.wav")):
-                st.audio(os.path.join('data',f"it-IT-{st.session_state['voice_name']}Neural_first.wav"))
+            if os.path.exists(os.path.join('data',f"{os.environ['language']}-{st.session_state['voice_name']}Neural_first.wav")):
+                st.audio(os.path.join('data',f"{os.environ['language']}-{st.session_state['voice_name']}Neural_first.wav"))
         with col3:
             st.write("Custom audio 20s")
-            st.write(f"Ciao, mi chiamo Nome Cognome e voglio attivare il servizio di conferma vocale per le mie operazioni. Sono nato/a il 1 Gennaio 1990 a Roma e sono attualmente residente a Milano, in via Genova 123. Ho scelto di facilitare il mio accesso, utilizzando semplicemente la mia voce! Continuo a parlare per raggiungere almeno 20 secondi di registrazione per creare il mio profilo vocale!")
+            st.write(os.environ['custom_phrase'])
         with col4:  
             st.write("-")  
-            if os.path.exists(os.path.join('data',f"it-IT-{st.session_state['voice_name']}Neural.wav")):
-                st.audio(os.path.join('data',f"it-IT-{st.session_state['voice_name']}Neural.wav"))
+            if os.path.exists(os.path.join('data',f"{os.environ['language']}-{st.session_state['voice_name']}Neural.wav")):
+                st.audio(os.path.join('data',f"{os.environ['language']}-{st.session_state['voice_name']}Neural.wav"))
 
 
     # Voice Recording
@@ -117,12 +134,12 @@ try:
                 prefix = recorded_name
                 suffix = "_first"
                 
-                if os.path.exists(os.path.join('data',f"it-IT-{recorded_name}Neural{suffix}.wav")):
+                if os.path.exists(os.path.join('data',f"{os.environ['language']}-{recorded_name}Neural{suffix}.wav")):
                     st.write("Activation phrase correctly recorded!")
-                    st.audio(os.path.join('data',f"it-IT-{recorded_name}Neural{suffix}.wav"))
+                    st.audio(os.path.join('data',f"{os.environ['language']}-{recorded_name}Neural{suffix}.wav"))
                 else:
                     val_first = audiorecorder("Record Activation phrase", "Stop recording")
-                    st.write("Parlo qualche secondo per farti sentire la mia voce, così in futuro mi riconoscerai.")
+                    st.write(os.environ['activation_phrase'])
                     if len(val_first) > 0:
                         save_audio_wav(val_first, prefix, suffix)
                             
@@ -132,19 +149,19 @@ try:
                 prefix = recorded_name
                 suffix = ""
 
-                if os.path.exists(os.path.join('data',f"it-IT-{recorded_name}Neural.wav")):
+                if os.path.exists(os.path.join('data',f"{os.environ['language']}-{recorded_name}Neural.wav")):
                     st.write("Custom audio correctly recorded!")
-                    st.audio(os.path.join('data',f"it-IT-{recorded_name}Neural.wav"))
+                    st.audio(os.path.join('data',f"{os.environ['language']}-{recorded_name}Neural.wav"))
                 else:
                     val = audiorecorder("Record Custom audio", "Stop recording")
-                    st.write(f"Ciao, mi chiamo Nome Cognome e voglio attivare il servizio di conferma vocale per le mie operazioni. Sono nato/a il 1 Gennaio 1990 a Roma e sono attualmente residente a Milano, in via Genova 123. Ho scelto di facilitare il mio accesso, utilizzando semplicemente la mia voce! Continuo a parlare per raggiungere almeno 20 secondi di registrazione per creare il mio profilo vocale!")
+                    st.write(os.environ['custom_phrase'])
                     if len(val) > 0:
                         save_audio_wav(val, prefix, suffix)
                          
             with col3:
                 st.header('Continue Enrollment')
                 st.write("To enroll a voice, please record the Activation and Custom Audio")
-                if os.path.exists(os.path.join('data',f"it-IT-{recorded_name}Neural_first.wav")) and os.path.exists(os.path.join('data',f"it-IT-{recorded_name}Neural.wav")):
+                if os.path.exists(os.path.join('data',f"{os.environ['language']}-{recorded_name}Neural_first.wav")) and os.path.exists(os.path.join('data',f"os.environ['language']{recorded_name}Neural.wav")):
                     st.button("Enroll", on_click=enroll_profile, kwargs= {"profile_name": recorded_name})
         else:
             st.write(f"{recorded_name} is enrolled! Please choice a different Voice name to enroll it.")
@@ -169,7 +186,7 @@ try:
         if st.session_state['verification_voice'] in available_voices:
             st.button("Generate Verification Audio", on_click=generate_audio_file_with_auth_code, kwargs={"name": st.session_state['verification_voice'], "person_name": st.session_state['verification_voice'], "generate_audio": "Verify", "auth_code" :st.session_state['auth_code']})
         else:            
-            if not os.path.exists(os.path.join('data',f"it-IT-{st.session_state['verification_voice']}Neural_verify{st.session_state['auth_code']}.wav")):
+            if not os.path.exists(os.path.join('data',f"{os.environ['language']}-{st.session_state['verification_voice']}Neural_verify{st.session_state['auth_code']}.wav")):
                 st.write(f"Record voice: Sono {st.session_state['verification_voice']} ed il mio codice di autorizzazione è {st.session_state['auth_code']:05}")
 
                 prefix = st.session_state["verification_voice"]
@@ -180,9 +197,9 @@ try:
                     save_audio_wav(val_verify, prefix, suffix)
 
     with col3:
-        if st.session_state['verification_voice'] != None and os.path.exists(os.path.join('data',f"it-IT-{st.session_state['verification_voice']}Neural_verify{st.session_state['auth_code']}.wav")):
+        if st.session_state['verification_voice'] != None and os.path.exists(os.path.join('data',f"{os.environ['language']}-{st.session_state['verification_voice']}Neural_verify{st.session_state['auth_code']}.wav")):
             st.write('Generated Audio')
-            st.audio(os.path.join('data', f"it-IT-{st.session_state['verification_voice']}Neural_verify{st.session_state['auth_code']}.wav"), format="audio/wav")
+            st.audio(os.path.join('data', f"{os.environ['language']}-{st.session_state['verification_voice']}Neural_verify{st.session_state['auth_code']}.wav"), format="audio/wav")
             if st.session_state['verification_voice'] != None and profile != None:
                 result_json = verify_profile(file_name= st.session_state['verification_voice'], profile_name= profile, auth_code= st.session_state['auth_code'])
                 st.write(result_json)
