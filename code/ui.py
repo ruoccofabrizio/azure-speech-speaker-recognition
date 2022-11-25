@@ -161,7 +161,7 @@ try:
             with col3:
                 st.header('Continue Enrollment')
                 st.write("To enroll a voice, please record the Activation and Custom Audio")
-                if os.path.exists(os.path.join('data',f"{os.environ['language']}-{recorded_name}Neural_first.wav")) and os.path.exists(os.path.join('data',f"os.environ['language']{recorded_name}Neural.wav")):
+                if os.path.exists(os.path.join('data',f"{os.environ['language']}-{recorded_name}Neural_first.wav")) and os.path.exists(os.path.join('data',f"{os.environ['language']}-{recorded_name}Neural.wav")):
                     st.button("Enroll", on_click=enroll_profile, kwargs= {"profile_name": recorded_name})
         else:
             st.write(f"{recorded_name} is enrolled! Please choice a different Voice name to enroll it.")

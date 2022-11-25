@@ -42,4 +42,4 @@ def generate_audio_files(**kwargs):
         synt_text(text_first, "_first", voice_name)
         synt_text(text, "", voice_name)
     if "Verify" in generate_audio:
-        synt_text(text_verify, "_verify", voice_name)
+        synt_text(text_verify, f"_verify{auth_code}", voice_name)
