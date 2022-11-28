@@ -15,7 +15,7 @@ def create_and_store_profile(profile_name):
     }
 
     body = {
-        "locale" : "it-IT"
+        "locale" : os.environ['language']
     }
 
     r = requests.post(url=url, headers=headers, json=body)
@@ -89,7 +89,7 @@ def verify_profile(**kwargs):
 
     result = r.json()
 
-    url = f"https://{service_region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language=it-IT"
+    url = f"https://{service_region}.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?language={os.environ['language']}"
     r = requests.post(url, headers=headers, data=data)
 
     result['Text'] = r.json()['DisplayText'].replace('.','').replace(',','')

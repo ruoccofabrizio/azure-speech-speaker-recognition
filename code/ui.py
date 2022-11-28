@@ -187,7 +187,8 @@ try:
             st.button("Generate Verification Audio", on_click=generate_audio_file_with_auth_code, kwargs={"name": st.session_state['verification_voice'], "person_name": st.session_state['verification_voice'], "generate_audio": "Verify", "auth_code" :st.session_state['auth_code']})
         else:            
             if not os.path.exists(os.path.join('data',f"{os.environ['language']}-{st.session_state['verification_voice']}Neural_verify{st.session_state['auth_code']}.wav")):
-                st.write(f"Record voice: Sono {st.session_state['verification_voice']} ed il mio codice di autorizzazione è {st.session_state['auth_code']:05}")
+                verification_voice = str(st.session_state.get('verification_voice',''))
+                st.write(os.environ['authorization_phrase'].replace('{person_name}', verification_voice).replace('{auth_code}',f"{st.session_state['auth_code']:05}"))
 
                 prefix = st.session_state["verification_voice"]
                 suffix = f'_verify{st.session_state["auth_code"]}'
